@@ -11,16 +11,23 @@ class SAM:
     def __init__(
         self, checkpoint_dir: str, model_type: str = "vit_h", device: str = "cuda"
     ) -> None:
-        checkpoints = glob.glob(os.path.join(checkpoint_dir, f"sam_{model_type}_*.pth"))
+        # Find all files in checkpoint_dir that have the form of
+        # f"sam_{model_type}_*.pth"
+        # for example
+        # "sam_vit_01.pth" or "sam_vit_02.pth"
+        checkpoints = glob.glob(os.path.join(checkpoint_dir, 
+                                             f"sam_{model_type}_*.pth"))
 
         if len(checkpoints) == 0:
             raise RuntimeError(
-                f"No matching checkpoints for SAM model '{model_type}' was found in '{checkpoint_dir}'"
+                f"No matching checkpoints for SAM model '{model_type}' " + 
+                f"was found in '{checkpoint_dir}'"
             )
 
         if len(checkpoints) > 1:
             raise RuntimeError(
-                f"No unique checkpoint for SAM model '{model_type}' found in '{checkpoint_dir}'"
+                f"No unique checkpoint for SAM model '{model_type}' " + 
+                f"found in '{checkpoint_dir}'"
             )
 
         gc.collect()
@@ -40,9 +47,6 @@ class SAM:
 
     def segment(self, img, points, point_labels, boxes=None, multimask=True):
         self._predictor.set_image(img)
-        if len(points) == 0:
-            points = None
-            point_labels = None
         return self._predictor.predict(
             point_coords=points,
             point_labels=point_labels,
